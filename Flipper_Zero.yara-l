@@ -1,0 +1,11 @@
+rule Flipper_Zero {
+  meta:
+    author = "alexanderwalston"
+    severity = "High"
+  events:
+    $e.metadata.product_event_type = "DcUsbDeviceConnected"
+    and
+    re.regex($e.about.asset.hardware.model, `.*Flip.*`) nocase
+  condition:
+    $e
+}
