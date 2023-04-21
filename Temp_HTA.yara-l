@@ -1,0 +1,8 @@
+rule Temp_HTA {
+  meta:
+    author = "alexanderwalston"
+  events:
+    re.regex($e.target.file.full_path, `.*\\temp\\.*\.hta$`)
+  condition:
+    $e
+}
