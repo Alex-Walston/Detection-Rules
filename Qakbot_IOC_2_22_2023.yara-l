@@ -1,0 +1,28 @@
+rule Qakbot_IOC_2_22_2023 {
+  meta:
+    author = "alexanderwalston"
+    description = "https://github.com/pr0xylife/Qakbot/blob/main/Qakbot_obama241_22.02.2023.txt"
+    severity = "Medium"
+  events:
+    $e1.principal.hostname = $host
+    $e1.principal.hostname = $e2.principal.hostname  
+    re.regex($e1.metadata.product_event_type, `.*FileWritten.*`)
+    and 
+    (
+    re.regex($e1.target.file.full_path,`.*\.(jpg|png|tif).*`)
+    ) 
+    ///e2
+    re.regex($e2.target.process.file.full_path, `.*rundll32.exe`)
+    and
+    (
+    re.regex($e2.target.process.command_line, `.*\.(jpg|png|tif).*`)
+    )
+    and not
+    (
+    re.regex($e2.target.process.command_line, `.*http.*`)       
+    )
+    match:
+    $host over 10m after $e1
+    condition:
+    $e1 and $e2
+}
