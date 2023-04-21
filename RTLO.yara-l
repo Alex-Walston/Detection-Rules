@@ -1,0 +1,29 @@
+rule RTLO {
+  meta:
+    author = "alexanderwalston"
+  events:
+    $e.principal.hostname = $host
+    (
+    re.regex($e.principal.file.full_path, `.*(exe|bat|cmd|ps1|vbs|html)\.(pdf|doc|docx|pptx|html|csv|eml|xlsx|wav|mp3)`)
+        or
+    re.regex($e.target.file.full_path, `.*(exe|bat|cmd|ps1|vbs|html)\.(pdf|doc|docx|pptx|html|csv|eml|xlsx|wav|mp3)`)
+    )or
+    //// Turns out I gave threat actors more credit than I should have... 
+    //// most of them can not figure out how to use the RTLO char and end 
+    //// up typing them wrong so thats what this section is for
+    (
+    re.regex($e.principal.file.full_path, `.*(exe|tab|dmc|1sp|sbv|lmth)\.(pdf|doc|docx|pptx|html|csv|eml|xlsx|wav|mp3)`)
+        or
+    re.regex($e.target.file.full_path, `.*(exe|tab|dmc|1sp|sbv|lmth)\.(pdf|doc|docx|pptx|html|csv|eml|xlsx|wav|mp3)`)
+        or
+        (
+        re.regex($e.principal.file.full_path, `.*lmth\.`)
+            or
+        re.regex($e.target.file.full_path, `.*lmth\.`)
+        )
+    )
+  match:
+    $host over 30m
+  condition:
+    $e
+}
