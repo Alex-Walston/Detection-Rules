@@ -1,0 +1,12 @@
+rule Qakbot_IOC_4_11_2023 {
+  meta:
+    // https://github.com/pr0xylife/Qakbot/blob/main/Qakbot_obama250_11.04.2023.txt
+    author = "alexanderwalston"
+    severity = "High"
+  events:
+    $e.principal.hostname = $host
+    re.regex($e.principal.process.file.full_path, `.*wsf.*`)
+    and
+    re.regex($e.target.process.command_line , `.*\-encodedcommand.*`) nocase 
+  condition:
+    $e
