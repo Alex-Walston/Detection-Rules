@@ -1,0 +1,43 @@
+rule AD_Discovery_Export {
+ meta:
+    //Ported from sigma rule
+    //https://github.com/SigmaHQ/sigma/blob/76554297a99c46edb16a427eb75becfbf129b436/rules/windows/process_creation/proc_creation_win_powershell_computer_discovery_get_adcomputer.yml#L2
+  events:
+(
+    (
+        (
+        re.regex($e.target.process.file.full_path, `.*powershell\.exe`) nocase
+        or 
+        re.regex($e.target.process.file.full_path, `.*pwsh\.exe`) nocase
+        )
+    ) 
+) 
+and
+( 
+    (
+        re.regex($e.target.process.command_line, `.*Get-ADComputer .*`) nocase   
+    ) 
+    and 
+    (
+        re.regex($e.target.process.command_line, `.* -Filter \\*.*`)  nocase  
+    ) 
+    and 
+    (
+        re.regex($e.target.process.command_line, `.* \> .*`) nocase
+        or 
+        re.regex($e.target.process.command_line, `.* \| Select .*`) nocase
+        or 
+        re.regex($e.target.process.command_line, `.*Out-File.*`) nocase
+        or 
+        re.regex($e.target.process.command_line, `.*Set-Content.*`) nocase
+        or 
+        re.regex($e.target.process.command_line, `.*Add-Content.*`)nocase
+    )
+)
+and not 
+(
+        re.regex($e.target.process.command_line,`.*nessus.*`) nocase
+)
+  condition:
+    $e
+}
