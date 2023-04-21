@@ -1,0 +1,17 @@
+rule External_UNC_Payload {
+  meta:
+    author = "alexanderwalston"
+    severity = "High"
+  events:
+    (
+    re.regex($e.target.process.command_line, `.*\\\\\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b.*\.exe.*`)nocase
+    or
+    re.regex($e.principal.process.command_line, `.*\\\\\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b.*\.exe.*`)nocase
+    )
+    and not
+    (
+    re.regex($e.target.process.command_line, `.*192\.168\.\d{1,3}\.\d{1,3}|^.*10\.\d{1,3}\.\d{1,3}\.\d{1,3}|^.*172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}.*`)
+    ) 
+  condition:
+    $e
+}
