@@ -1,0 +1,113 @@
+rule Recon_Risk {
+  meta:
+    // Checks for initial recon commands a attacker might make 
+    // when first gaining access to a machine 
+    author = "alexanderwalston"
+    description = "Checks for initial recon commands"
+  events:
+      $e.principal.hostname = $host
+      (
+      re.regex($e.principal.process.file.full_path, `.*cmd\.exe.*`)
+      or
+      re.regex($e.principal.process.file.full_path, `.*powershell.*`)
+      )
+      and
+      (
+      re.regex($e.principal.process.parent_process.file.full_path, `.*cmd\.exe.*`) nocase
+      or
+      re.regex($e.principal.process.parent_process.file.full_path, `.*explorer.*`) nocase
+      or
+      re.regex($e.principal.process.parent_process.file.full_path, `.*powershell.*`) nocase
+      or
+      $e.principal.process.parent_process.file.full_path = "PSEXESVC.exe"
+      or
+      $e.principal.process.parent_process.file.full_path = "rundll32.exe"
+      or
+      $e.principal.process.parent_process.file.full_path = "wscript.exe"
+      or
+      $e.principal.process.parent_process.file.full_path = ""
+      )
+      and 
+      $e.metadata.event_type = "PROCESS_LAUNCH"
+      and
+      (
+      re.regex($e.target.process.command_line, `.*whoami.*`) nocase
+      or
+      re.regex($e.target.process.command_line, `.*nslookup.*`) nocase
+      or
+      re.regex($e.target.process.command_line, `.*echo.*\%\%temp\%\%.*`) nocase
+      or
+      re.regex($e.target.process.command_line, `.*net.*time.*`) nocase
+      or
+      re.regex($e.target.process.command_line, `.*cmd.exe.*\/c.*chcp.*\>\&2.*`) nocase
+      or
+      re.regex($e.target.process.command_line, `.*net.*config.*workstation.*`) nocase
+      or
+      re.regex($e.target.process.command_line, `.*Import\-Module.*ActiveDirectory.*`) nocase
+      or
+      re.regex($e.target.process.command_line, `.*nltest\/domain\_trusts.*`) nocase
+      or
+      re.regex($e.target.process.command_line, `.*ipconfig.*\/all.*`) nocase
+      or
+      re.regex($e.target.process.command_line, `.*net.*view.*\/all.*`) nocase
+      or
+      re.regex($e.target.process.command_line, `.*net.*group.*\"Domain.*Admins\".*\/domain.*`) nocase
+      or
+      re.regex($e.target.process.command_line, `.*systeminfo.*`) nocase
+      or
+      re.regex($e.target.process.command_line, `.*netstat.*\-anop.*tcp.*`) nocase
+      or
+      re.regex($e.target.process.command_line, `.*hostname.*`) nocase
+      )
+      //filter
+      //and not 
+      //(
+      //)
+  match:
+      $host over 1h
+  outcome:
+      // This function is built to be very malleable, change scores and add filters as necessary 
+      $risk_score =
+        sum(
+          if($e.target.process.command_line = /.*whoami.*/ nocase, 25)
+        + if($e.target.process.command_line = /.*echo.*\%\%temp\%\%.*/ nocase, 25)
+        + if($e.target.process.command_line = /.*net.*time.*/ nocase, 25)
+        + if($e.target.process.command_line = /.*cmd.exe.*\/c.*chcp.*\>\&2.*/ nocase, 25)
+        + if($e.target.process.command_line = /.*net.*config.*workstation.*/ nocase, 25)
+        + if($e.target.process.command_line = /.*Import\-Module.*ActiveDirectory.*/ nocase, 25)
+        + if($e.target.process.command_line = /.*nltest.*\/domain\_trusts.*/ nocase, 25)
+        + if($e.target.process.command_line = /.*ipconfig.*/ nocase, 25)
+        + if($e.target.process.command_line = /.*net.*view.*/ nocase, 25)
+        + if($e.target.process.command_line = /.*net.*group.*\"Domain.*Admins\".*\/domain.*/ nocase, 25)
+        + if($e.target.process.command_line = /.*systeminfo.*/ nocase, 25)
+        + if($e.target.process.command_line = /.*netstat.*(a.*|n.*|o.*|p.*).*/ nocase, 25)
+        + if($e.target.process.command_line = /.*net.*time.*/ nocase, 25)
+        + if($e.target.process.command_line = /.*hostname.*/ nocase, 25)
+        + if($e.target.process.command_line = /.*net.*share.*/ nocase, 25)
+        + if($e.target.process.command_line = /.*arp.*/ nocase, 25)
+        + if($e.target.process.command_line = /.*route.*print.*/ nocase, 25)
+        + if($e.target.process.command_line = /.*cmd.*\/c.*/ nocase, 10)
+        + if($e.target.process.command_line = /.*\/all.*/ nocase, 100)
+        ///
+        + if($e.target.process.command_line = /^whoami.*/ nocase, 100)
+        + if($e.target.process.command_line = /^echo.*\%\%temp\%\%.*/ nocase, 100)
+        + if($e.target.process.command_line = /^net.*time.*/ nocase, 100)
+        + if($e.target.process.command_line = /^cmd.exe.*\/c.*chcp.*\>\&2.*/ nocase, 100)
+        + if($e.target.process.command_line = /^net.*config.*workstation.*/ nocase, 100)
+        + if($e.target.process.command_line = /^Import\-Module.*ActiveDirectory.*/ nocase, 100)
+        + if($e.target.process.command_line = /^nltest.*\/domain\_trusts.*/ nocase, 100)
+        + if($e.target.process.command_line = /^ipconfig.*/ nocase, 100)
+        + if($e.target.process.command_line = /^net.*view.*/ nocase, 100)
+        + if($e.target.process.command_line = /^net.*group.*\"Domain.*Admins\".*\/domain.*/ nocase, 100)
+        + if($e.target.process.command_line = /^systeminfo.*/ nocase, 100)
+        + if($e.target.process.command_line = /^netstat.*(a.*|n.*|o.*|p.*).*/ nocase, 100)
+        + if($e.target.process.command_line = /^net.*time.*/ nocase, 100)
+        + if($e.target.process.command_line = /^hostname.*/ nocase, 50)
+        + if($e.target.process.command_line = /^net.*share.*/ nocase, 100)
+        + if($e.target.process.command_line = /^arp.*/ nocase, 100)
+        + if($e.target.process.command_line = /^route.*print.*/ nocase, 100)
+        + if($e.target.process.command_line = /^cmd.*\/c.*/ nocase, 25)
+        )
+  condition:
+      $e and $risk_score >= 500
+}
