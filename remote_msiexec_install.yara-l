@@ -1,0 +1,8 @@
+rule remote_msiexec_install { 
+	meta: 
+		author = "alexanderwalston"
+	events:
+    re.regex($e.target.process.command_line, `.*msiexec.*:.*`)
+  condition:
+    $e
+}
