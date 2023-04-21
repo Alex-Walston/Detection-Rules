@@ -1,0 +1,11 @@
+rule CFC_CVE_2023_23397 {
+  meta:
+    author = "alexanderwalston"
+    severity = "Medium"
+  events:
+    re.regex($e.target.process.command_line,`.*DavSetCookie.*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}.*`)
+    and 
+    re.regex($e.target.process.command_line,`.*^192\.168\.\d{1,3}\.\d{1,3}|^10\.\d{1,3}\.\d{1,3}\.\d{1,3}|^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}.*`)
+  condition:
+    $e
+}
