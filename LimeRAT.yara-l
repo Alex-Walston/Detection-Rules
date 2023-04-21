@@ -1,0 +1,15 @@
+rule LimeRAT {
+    //https://any.run/cybersecurity-blog/limerat-malware-analysis/?utm_source=twitter&utm_medium=article&utm_campaign=ai_blog&utm_content=linktoblog&utm_term=280323
+  meta:
+    author = "alexanderwalston"
+    severity = "Medium"
+  events:
+    $e.principal.hostname = $host
+    $e.network.dns.questions.name = "pastebin.com"
+    and
+    $e.metadata.event_type = "NETWORK_CONNECTION"
+  match:
+    $host over 5m 
+  condition:
+    $e
+}
