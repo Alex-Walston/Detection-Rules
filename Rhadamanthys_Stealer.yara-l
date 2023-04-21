@@ -1,0 +1,15 @@
+rule Rhadamanthys_Stealer {
+  // https://research.checkpoint.com/2023/rhadamanthys-the-everything-bagel-infostealer/
+  // https://tria.ge/221227-vprhbsae8t/behavioral2#report
+  // https://www.accenture.com/us-en/blogs/security/information-stealer-malware-on-dark-web
+  // This is a new info stealer with 0 AV detections at the moment. The command line activity
+  // that I am alerting off of is from the sample in the tria.ge link above.
+  meta:
+    author = "alexanderwalston"
+    severity = "Medium"
+
+  events:
+    re.regex($e.target.process.command_line, `.*PrintUIEntry.*\=`)
+  condition:
+    $e
+}
