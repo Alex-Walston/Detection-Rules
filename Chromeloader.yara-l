@@ -1,0 +1,15 @@
+rule Chromeloader {
+  meta:
+    author = "alexanderwalston"
+    severity = "High"
+  events:
+    (
+    re.regex($e.principal.process.file.full_path,`.*powershell.*`) nocase
+    or
+    re.regex($e.principal.process.file.full_path,`.*pwsh.*`) nocase
+    )
+    and
+    re.regex($e.target.process.command_line,`.*load.*extension.*AppData.*`) nocase
+  condition:
+    $e
+}
