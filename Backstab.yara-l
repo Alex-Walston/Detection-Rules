@@ -1,0 +1,51 @@
+rule Backstab {
+  //https://news.sophos.com/en-us/2023/04/19/aukill-edr-killer-malware-abuses-process-explorer-driver/
+  //https://www.loldrivers.io/drivers/procexp/
+  //https://github.com/Yaxser/Backstab
+  meta:
+    author = "alexanderwalston"
+    severity = "High"
+    //email = "true"
+  events:
+(
+    $e.principal.process.file.md5 = "97e3a44ec4ae58c8cc38eefc613e950e"
+    or
+    $e.principal.process.file.sha256 = "440883cd9d6a76db5e53517d0ec7fe13d5a50d2f6a7f91ecfc863bc3490e4f5c"
+    or
+    $e.principal.process.file.sha256 = "83bbf4f24f9ec09451b62fc127aa63b8d6a5fc6d6f2934eab90714fff78f9b2c"
+    or
+    $e.principal.process.file.sha256 = "075de997497262a9d105afeadaaefc6348b25ce0e0126505c24aa9396c251e85"
+    or
+    $e.principal.process.file.sha256 = "83bbf4f24f9ec09451b62fc127aa63b8d6a5fc6d6f2934eab90714fff78f9b2c"
+    or
+    $e.principal.process.file.sha256 = "f29073dc99cb52fa890aae80037b48a172138f112474a1aecddae21179c93478" 
+    or
+    $e.principal.process.file.sha256 = "cdfbe62ef515546f1728189260d0bdf77167063b6dbb77f1db6ed8b61145a2bc" 
+    or
+    $e.principal.process.file.sha256 = "98a123b314cba2de65f899cdbfa386532f178333389e0f0fbd544aff85be02eb" 
+    or
+    $e.principal.process.file.sha256 = "9b6a84f7c40ea51c38cc4d2e93efb3375e9d98d4894a85941190d94fbe73a4e4" 
+)
+    or
+(
+    $e.target.file.sha256 = "83bbf4f24f9ec09451b62fc127aa63b8d6a5fc6d6f2934eab90714fff78f9b2c"
+    or
+    $e.target.file.sha256 = "075de997497262a9d105afeadaaefc6348b25ce0e0126505c24aa9396c251e85"
+    or
+    $e.target.file.sha256 = "83bbf4f24f9ec09451b62fc127aa63b8d6a5fc6d6f2934eab90714fff78f9b2c"
+    or
+    $e.target.file.sha256 = "440883cd9d6a76db5e53517d0ec7fe13d5a50d2f6a7f91ecfc863bc3490e4f5c"
+    or
+    $e.target.file.sha256 = "f29073dc99cb52fa890aae80037b48a172138f112474a1aecddae21179c93478" 
+    or
+    $e.target.file.sha256 = "cdfbe62ef515546f1728189260d0bdf77167063b6dbb77f1db6ed8b61145a2bc" 
+    or
+    $e.target.file.sha256 = "98a123b314cba2de65f899cdbfa386532f178333389e0f0fbd544aff85be02eb" 
+    or
+    $e.target.file.sha256 = "9b6a84f7c40ea51c38cc4d2e93efb3375e9d98d4894a85941190d94fbe73a4e4" 
+)
+    or
+    re.regex($e.target.process.command_line,`.*sc.*create.*procexp\.Sys`)
+  condition:
+    $e
+}
